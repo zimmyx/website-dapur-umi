@@ -94,7 +94,7 @@ export function AboutSection() {
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl">
               <div
                 className="h-full w-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${placeholderImages.about})` }}
+                style={{ backgroundImage: `url(${placeholderImages.bakery})` }}
               />
               <div className="image-overlay-soft" />
             </div>
