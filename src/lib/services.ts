@@ -25,6 +25,9 @@ import type {
   FeaturedSectionUpdate,
   ActivityLog,
   ActivityLogInsert,
+  Faq,
+  FaqInsert,
+  FaqUpdate,
   ApiResponse,
   PaginatedResponse,
 } from "@/types";
@@ -526,4 +529,33 @@ export const uploadService = {
     const ids = items.map((i) => i.id);
     return removeBatch("uploads", ids);
   },
+};
+
+// ─── FAQ Service ──────────────────────────────────────────────────────────────
+
+export const faqService = {
+  getAll: (options?: QueryOptions) =>
+    fetchAll<Faq>("faqs", { orderBy: "sort_order", orderDirection: "asc", ...options }),
+
+  getActive: async (): Promise<ApiResponse<Faq[]>> => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("faqs")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+
+    if (error) return { data: null, error: error.message, success: false };
+    return { data: data as Faq[], error: null, success: true };
+  },
+
+  getById: (id: string) => fetchById<Faq>("faqs", id),
+
+  create: (payload: FaqInsert) =>
+    create<Faq>("faqs", payload as unknown as Record<string, unknown>),
+
+  update: (id: string, payload: FaqUpdate) =>
+    update<Faq>("faqs", id, payload as unknown as Record<string, unknown>),
+
+  delete: (id: string) => remove("faqs", id),
 };

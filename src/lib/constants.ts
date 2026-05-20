@@ -33,24 +33,24 @@ export const siteConfig = {
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
 export const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Products", href: "#products" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contact", href: "#contact" },
+  { label: "Utama", href: "#home" },
+  { label: "Tentang", href: "#about" },
+  { label: "Produk", href: "#products" },
+  { label: "Galeri", href: "#gallery" },
+  { label: "Testimoni", href: "#testimonials" },
+  { label: "Soalan Lazim", href: "#faq" },
+  { label: "Hubungi", href: "#contact" },
 ] as const;
 
 export const adminNavLinks = [
-  { label: "Dashboard", href: "/admin", icon: "LayoutDashboard" },
-  { label: "Products", href: "/admin/products", icon: "Package" },
-  { label: "Categories", href: "/admin/categories", icon: "Grid3X3" },
-  { label: "Gallery", href: "/admin/gallery", icon: "Image" },
-  { label: "Testimonials", href: "/admin/testimonials", icon: "MessageSquare" },
-  { label: "Orders", href: "/admin/orders", icon: "ShoppingBag" },
-  { label: "Uploads", href: "/admin/uploads", icon: "Upload" },
-  { label: "Settings", href: "/admin/settings", icon: "Settings" },
+  { label: "Papan Pemuka", href: "/admin", icon: "LayoutDashboard" },
+  { label: "Produk", href: "/admin/products", icon: "Package" },
+  { label: "Kategori", href: "/admin/categories", icon: "Grid3X3" },
+  { label: "Galeri", href: "/admin/gallery", icon: "Image" },
+  { label: "Testimoni", href: "/admin/testimonials", icon: "MessageSquare" },
+  { label: "Soalan Lazim", href: "/admin/faqs", icon: "HelpCircle" },
+  { label: "Muat Naik", href: "/admin/uploads", icon: "Upload" },
+  { label: "Tetapan", href: "/admin/settings", icon: "Settings" },
 ] as const;
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────

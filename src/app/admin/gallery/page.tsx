@@ -66,7 +66,7 @@ export default function AdminGalleryPage() {
     if (res.success) {
       setItems(res.data);
     } else {
-      toast.error("Gagal memuat galeri", res.error ?? undefined);
+      toast.error("Gagal memuatkan galeri", res.error ?? undefined);
     }
     setLoading(false);
   }, []);

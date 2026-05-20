@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
-import { testimonialData as fallbackTestimonials } from "@/lib/constants";
 import type { Testimonial } from "@/types";
 import {
   staggerContainer,
@@ -25,25 +24,28 @@ export function TestimonialsSection({
 }: {
   testimonials?: Testimonial[];
 }) {
-  const display: DisplayTestimonial[] =
-    testimonials && testimonials.length > 0
-      ? testimonials.map((t) => ({
-          id: t.id,
-          name: t.name,
-          role: t.role ?? "",
-          avatar: t.avatar_url ?? "",
-          content: t.content,
-          rating: t.rating,
-        }))
-      : fallbackTestimonials.map((t) => ({
-          id: t.id,
-          name: t.name,
-          role: t.role,
-          avatar: t.avatar,
-          content: t.content,
-          rating: t.rating,
-        }));
+  // Hide section entirely when no approved testimonials exist
+  if (!testimonials || testimonials.length === 0) {
+    return null;
+  }
 
+  const display: DisplayTestimonial[] = testimonials.map((t) => ({
+    id: t.id,
+    name: t.name,
+    role: t.role ?? "",
+    avatar: t.avatar_url ?? "",
+    content: t.content,
+    rating: t.rating,
+  }));
+
+  return <TestimonialsCarousel display={display} />;
+}
+
+function TestimonialsCarousel({
+  display,
+}: {
+  display: DisplayTestimonial[];
+}) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(0);
 
@@ -84,14 +86,14 @@ export function TestimonialsSection({
     }),
   };
 
-  if (display.length === 0) return null;
-
-  // Guard against current going out of range when display shrinks
   const safeIndex = Math.min(current, display.length - 1);
   const testimonial = display[safeIndex];
 
   return (
-    <section id="testimonials" className="section-padding-lg relative overflow-hidden bg-cream">
+    <section
+      id="testimonials"
+      className="section-padding-lg relative overflow-hidden bg-cream"
+    >
       {/* Decorative Background */}
       <div className="absolute inset-0">
         <div className="absolute left-1/4 top-20 h-40 w-40 rounded-full bg-rose/5 blur-3xl" />
@@ -110,7 +112,10 @@ export function TestimonialsSection({
           viewport={{ once: true, margin: "-100px" }}
           className="mb-16 text-center"
         >
-          <motion.div variants={staggerItem} className="mb-4 flex items-center justify-center gap-3">
+          <motion.div
+            variants={staggerItem}
+            className="mb-4 flex items-center justify-center gap-3"
+          >
             <motion.span variants={lineReveal} className="h-px w-12 bg-camel" />
             <span className="text-body-sm font-semibold uppercase tracking-[0.2em] text-camel">
               Testimoni
@@ -129,8 +134,8 @@ export function TestimonialsSection({
             variants={staggerItem}
             className="mx-auto mt-4 max-w-xl text-body-lg text-muted-foreground"
           >
-            Kepuasan pelanggan adalah kebanggaan kami. Dengar sendiri apa kata
-            mereka tentang pengalaman bersama Dapur Umi.
+            Kepuasan pelanggan adalah kebanggaan kami. Dengar sendiri pengalaman
+            mereka bersama Dapur Umi.
           </motion.p>
         </motion.div>
 
@@ -170,14 +175,18 @@ export function TestimonialsSection({
 
                 {/* Author */}
                 <div className="flex items-center gap-4">
-                  <div
-                    className="h-14 w-14 rounded-full bg-cover bg-center bg-cream/40 ring-2 ring-sand/30 ring-offset-2"
-                    style={
-                      testimonial.avatar
-                        ? { backgroundImage: `url(${testimonial.avatar})` }
-                        : undefined
-                    }
-                  />
+                  {testimonial.avatar ? (
+                    <div
+                      className="h-14 w-14 rounded-full bg-cover bg-center bg-cream/40 ring-2 ring-sand/30 ring-offset-2"
+                      style={{
+                        backgroundImage: `url(${testimonial.avatar})`,
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-rose to-camel font-display text-heading-sm font-bold text-white ring-2 ring-sand/30 ring-offset-2">
+                      {testimonial.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="text-left">
                     <h4 className="font-display text-heading-sm font-semibold text-foreground">
                       {testimonial.name}
@@ -201,7 +210,7 @@ export function TestimonialsSection({
                 whileTap={{ scale: 0.9 }}
                 onClick={prev}
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-sand/50 bg-white shadow-soft-sm transition-colors hover:bg-cream"
-                aria-label="Previous testimonial"
+                aria-label="Testimoni sebelumnya"
               >
                 <ChevronLeft className="h-5 w-5 text-foreground" />
               </motion.button>
@@ -219,7 +228,7 @@ export function TestimonialsSection({
                         ? "w-8 bg-rose"
                         : "w-2 bg-sand hover:bg-camel"
                     }`}
-                    aria-label={`Go to testimonial ${index + 1}`}
+                    aria-label={`Pergi ke testimoni ${index + 1}`}
                   />
                 ))}
               </div>
@@ -229,7 +238,7 @@ export function TestimonialsSection({
                 whileTap={{ scale: 0.9 }}
                 onClick={next}
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-sand/50 bg-white shadow-soft-sm transition-colors hover:bg-cream"
-                aria-label="Next testimonial"
+                aria-label="Testimoni seterusnya"
               >
                 <ChevronRight className="h-5 w-5 text-foreground" />
               </motion.button>

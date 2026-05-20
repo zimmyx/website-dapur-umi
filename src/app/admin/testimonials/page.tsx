@@ -66,7 +66,7 @@ export default function AdminTestimonialsPage() {
     if (res.success) {
       setTestimonials(res.data);
     } else {
-      toast.error("Gagal memuat testimoni", res.error ?? undefined);
+      toast.error("Gagal memuatkan testimoni", res.error ?? undefined);
     }
     setLoading(false);
   }, []);
@@ -373,7 +373,7 @@ export default function AdminTestimonialsPage() {
               >
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="font-display text-heading-lg font-semibold text-foreground">
-                    {editingId ? "Edit Testimoni" : "Tambah Testimoni"}
+                    {editingId ? "Sunting Testimoni" : "Tambah Testimoni"}
                   </h2>
                   <button
                     onClick={() => !submitting && setShowModal(false)}

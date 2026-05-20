@@ -10,7 +10,7 @@ import {
   Grid3X3,
   Image,
   MessageSquare,
-  ShoppingBag,
+  HelpCircle,
   Upload,
   Settings,
   LogOut,
@@ -30,7 +30,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Grid3X3,
   Image,
   MessageSquare,
-  ShoppingBag,
+  HelpCircle,
   Upload,
   Settings,
 };
@@ -232,13 +232,14 @@ export default function AdminLayout({
             {/* Breadcrumb */}
             <div className="hidden items-center gap-2 text-body-sm sm:flex">
               <Link href="/admin" className="text-muted-foreground hover:text-foreground">
-                Dashboard
+                Papan Pemuka
               </Link>
               {pathname !== "/admin" && (
                 <>
                   <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                  <span className="font-medium text-foreground capitalize">
-                    {pathname.split("/").pop()?.replace(/-/g, " ")}
+                  <span className="font-medium text-foreground">
+                    {adminNavLinks.find((l) => l.href === pathname)?.label ??
+                      pathname.split("/").pop()?.replace(/-/g, " ")}
                   </span>
                 </>
               )}

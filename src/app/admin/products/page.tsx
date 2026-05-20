@@ -78,7 +78,7 @@ export default function AdminProductsPage() {
     if (productsRes.success) {
       setProducts(productsRes.data);
     } else {
-      toast.error("Gagal memuat produk", productsRes.error ?? undefined);
+      toast.error("Gagal memuatkan produk", productsRes.error ?? undefined);
     }
 
     if (categoriesRes.success) {
@@ -247,7 +247,7 @@ export default function AdminProductsPage() {
             Produk
           </h1>
           <p className="mt-1 text-body-sm text-muted-foreground">
-            Urus semua produk bakeri anda
+            Urus semua produk bakeri kami
           </p>
         </div>
         <motion.button
@@ -444,7 +444,7 @@ export default function AdminProductsPage() {
               >
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="font-display text-heading-lg font-semibold text-foreground">
-                    {editingId ? "Edit Produk" : "Tambah Produk Baru"}
+                    {editingId ? "Sunting Produk" : "Tambah Produk Baru"}
                   </h2>
                   <button
                     onClick={() => !submitting && setShowModal(false)}

@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { X } from "lucide-react";
-import { placeholderImages } from "@/lib/constants";
 import type { GalleryItem } from "@/types";
 import {
   staggerContainer,
@@ -20,17 +19,6 @@ interface DisplayItem {
   title: string;
   category: string;
 }
-
-const fallbackItems: DisplayItem[] = [
-  { id: "1", image: placeholderImages.gallery[0], title: "Red Velvet Masterpiece", category: "Kek" },
-  { id: "2", image: placeholderImages.gallery[1], title: "Artisan Croissants", category: "Pastri" },
-  { id: "3", image: placeholderImages.gallery[2], title: "Baking Process", category: "Behind the Scenes" },
-  { id: "4", image: placeholderImages.gallery[3], title: "Fresh Ingredients", category: "Bahan" },
-  { id: "5", image: placeholderImages.gallery[4], title: "Wedding Cake", category: "Kek" },
-  { id: "6", image: placeholderImages.gallery[5], title: "Chocolate Collection", category: "Pastri" },
-  { id: "7", image: placeholderImages.gallery[6], title: "Birthday Special", category: "Kek" },
-  { id: "8", image: placeholderImages.gallery[7], title: "Cookie Artistry", category: "Cookies" },
-];
 
 function GalleryLightbox({
   image,
@@ -62,12 +50,14 @@ function GalleryLightbox({
           style={{ backgroundImage: `url(${image})` }}
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-          <h3 className="font-display text-heading-lg font-semibold text-white">{title}</h3>
+          <h3 className="font-display text-heading-lg font-semibold text-white">
+            {title}
+          </h3>
         </div>
         <button
           onClick={onClose}
           className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/40"
-          aria-label="Close lightbox"
+          aria-label="Tutup pratonton"
         >
           <X className="h-5 w-5" />
         </button>
@@ -82,19 +72,22 @@ export function GallerySection({ items }: { items?: GalleryItem[] }) {
     title: string;
   } | null>(null);
 
-  const display: DisplayItem[] =
-    items && items.length > 0
-      ? items.slice(0, 8).map((item) => ({
-          id: item.id,
-          image: item.image_url,
-          title: item.title,
-          category: item.category ?? "",
-        }))
-      : fallbackItems;
+  // Hide section entirely when no real gallery items exist (no placeholders)
+  if (!items || items.length === 0) return null;
+
+  const display: DisplayItem[] = items.slice(0, 8).map((item) => ({
+    id: item.id,
+    image: item.image_url,
+    title: item.title,
+    category: item.category ?? "",
+  }));
 
   return (
     <>
-      <section id="gallery" className="section-padding-lg relative overflow-hidden bg-white">
+      <section
+        id="gallery"
+        className="section-padding-lg relative overflow-hidden bg-white"
+      >
         {/* Decorative */}
         <div className="absolute inset-0">
           <div className="absolute left-0 top-1/2 h-px w-full bg-gradient-to-r from-transparent via-sand/30 to-transparent" />
@@ -109,7 +102,10 @@ export function GallerySection({ items }: { items?: GalleryItem[] }) {
             viewport={{ once: true, margin: "-100px" }}
             className="mb-16 text-center"
           >
-            <motion.div variants={staggerItem} className="mb-4 flex items-center justify-center gap-3">
+            <motion.div
+              variants={staggerItem}
+              className="mb-4 flex items-center justify-center gap-3"
+            >
               <motion.span variants={lineReveal} className="h-px w-12 bg-camel" />
               <span className="text-body-sm font-semibold uppercase tracking-[0.2em] text-camel">
                 Galeri
@@ -128,8 +124,9 @@ export function GallerySection({ items }: { items?: GalleryItem[] }) {
               variants={staggerItem}
               className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground"
             >
-              Setiap ciptaan adalah kanvas — dihias dengan teliti, dipersembahkan
-              dengan bangga. Lihatlah keindahan yang lahir dari dapur kami.
+              Setiap ciptaan adalah kanvas — dihias dengan teliti dan
+              dipersembahkan dengan penuh kebanggaan. Saksikan keindahan yang
+              lahir daripada dapur kami.
             </motion.p>
           </motion.div>
 
@@ -165,7 +162,10 @@ export function GallerySection({ items }: { items?: GalleryItem[] }) {
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className="group relative cursor-pointer overflow-hidden rounded-2xl"
                     onClick={() =>
-                      setSelectedImage({ image: item.image, title: item.title })
+                      setSelectedImage({
+                        image: item.image,
+                        title: item.title,
+                      })
                     }
                   >
                     <div

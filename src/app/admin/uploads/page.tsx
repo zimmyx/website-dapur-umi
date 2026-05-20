@@ -74,7 +74,7 @@ export default function AdminUploadsPage() {
     if (res.success) {
       setUploads(res.data);
     } else {
-      toast.error("Gagal memuat fail", res.error ?? undefined);
+      toast.error("Gagal memuatkan fail", res.error ?? undefined);
     }
     setLoading(false);
   }, []);

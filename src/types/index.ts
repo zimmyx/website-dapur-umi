@@ -48,6 +48,11 @@ export interface Database {
         Insert: FeaturedSectionInsert;
         Update: FeaturedSectionUpdate;
       };
+      faqs: {
+        Row: Faq;
+        Insert: FaqInsert;
+        Update: FaqUpdate;
+      };
     };
   };
 }
@@ -234,6 +239,22 @@ export interface FeaturedSection {
 
 export type FeaturedSectionInsert = Omit<FeaturedSection, "id" | "created_at" | "updated_at">;
 export type FeaturedSectionUpdate = Partial<FeaturedSectionInsert>;
+
+// ─── FAQ Types ────────────────────────────────────────────────────────────────
+
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+  category: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type FaqInsert = Omit<Faq, "id" | "created_at" | "updated_at">;
+export type FaqUpdate = Partial<FaqInsert>;
 
 // ─── UI Component Types ───────────────────────────────────────────────────────
 

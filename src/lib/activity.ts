@@ -57,7 +57,8 @@ export type AdminEntity =
   | "testimonial"
   | "setting"
   | "upload"
-  | "featured_section";
+  | "featured_section"
+  | "faq";
 
 interface LogPayload {
   action: AdminAction;

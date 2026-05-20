@@ -70,7 +70,7 @@ export default function AdminSettingsPage() {
     setLoading(true);
     const res = await settingsService.getAll({ pageSize: 200 });
     if (!res.success) {
-      toast.error("Gagal memuat tetapan", res.error ?? undefined);
+      toast.error("Gagal memuatkan tetapan", res.error ?? undefined);
       setLoading(false);
       return;
     }

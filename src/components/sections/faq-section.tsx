@@ -3,12 +3,21 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { faqData } from "@/lib/constants";
+import { faqData as fallbackFaqs } from "@/lib/constants";
+import type { Faq } from "@/types";
+import type { SiteSettings } from "@/lib/site-settings";
+import { whatsappLink } from "@/lib/site-settings";
 import {
   staggerContainer,
   staggerItem,
   lineReveal,
 } from "@/lib/animations";
+
+interface DisplayFaq {
+  id: string;
+  question: string;
+  answer: string;
+}
 
 function FAQItem({
   question,
@@ -66,7 +75,7 @@ function FAQItem({
             className="overflow-hidden"
           >
             <div className="border-t border-sand/20 px-6 pb-6 pt-4">
-              <p className="text-body-md leading-relaxed text-muted-foreground">
+              <p className="text-body-md leading-relaxed text-muted-foreground whitespace-pre-line">
                 {answer}
               </p>
             </div>
@@ -77,8 +86,29 @@ function FAQItem({
   );
 }
 
-export function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+export function FAQSection({
+  faqs,
+  settings,
+}: {
+  faqs?: Faq[];
+  settings?: SiteSettings;
+}) {
+  const display: DisplayFaq[] =
+    faqs && faqs.length > 0
+      ? faqs.map((f) => ({ id: f.id, question: f.question, answer: f.answer }))
+      : fallbackFaqs.map((f, i) => ({
+          id: `fallback-${i}`,
+          question: f.question,
+          answer: f.answer,
+        }));
+
+  const whatsappUrl = settings?.contactWhatsapp
+    ? whatsappLink(settings.contactWhatsapp)
+    : "https://wa.me/60123456789";
+
+  const [openId, setOpenId] = useState<string | null>(display[0]?.id ?? null);
+
+  if (display.length === 0) return null;
 
   return (
     <section id="faq" className="section-padding-lg relative overflow-hidden bg-white">
@@ -116,7 +146,7 @@ export function FAQSection() {
             variants={staggerItem}
             className="mx-auto mt-4 max-w-xl text-body-lg text-muted-foreground"
           >
-            Kami sedia membantu. Berikut adalah jawapan kepada soalan yang sering
+            Kami sedia membantu. Berikut adalah jawapan bagi soalan yang sering
             ditanya oleh pelanggan kami.
           </motion.p>
         </motion.div>
@@ -129,13 +159,13 @@ export function FAQSection() {
           viewport={{ once: true, margin: "-50px" }}
           className="flex flex-col gap-3"
         >
-          {faqData.map((faq, index) => (
+          {display.map((faq) => (
             <FAQItem
-              key={index}
+              key={faq.id}
               question={faq.question}
               answer={faq.answer}
-              isOpen={openIndex === index}
-              onToggle={() => setOpenIndex(openIndex === index ? null : index)}
+              isOpen={openId === faq.id}
+              onToggle={() => setOpenId(openId === faq.id ? null : faq.id)}
             />
           ))}
         </motion.div>
@@ -151,12 +181,12 @@ export function FAQSection() {
           <p className="text-body-md text-muted-foreground">
             Masih ada soalan?{" "}
             <a
-              href="https://wa.me/60123456789"
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-rose transition-colors hover:text-rose-400"
             >
-              Hubungi kami di WhatsApp
+              Hubungi kami melalui WhatsApp
             </a>
           </p>
         </motion.div>

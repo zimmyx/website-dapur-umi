@@ -11,11 +11,11 @@ import {
   GripVertical,
   Loader2,
   Inbox,
+  HelpCircle,
 } from "lucide-react";
-import { categoryService } from "@/lib/services";
-import type { Category, CategoryInsert } from "@/types";
+import { faqService } from "@/lib/services";
+import type { Faq, FaqInsert } from "@/types";
 import { toast } from "@/hooks";
-import { slugify } from "@/lib/utils";
 import { logActivity } from "@/lib/activity";
 import { revalidatePublicSite } from "@/lib/actions";
 import {
@@ -26,123 +26,105 @@ import {
   overlayVariants,
 } from "@/lib/animations";
 
-interface CategoryForm {
-  name: string;
-  name_en: string;
-  slug: string;
-  description: string;
-  icon: string;
+interface FaqForm {
+  question: string;
+  answer: string;
+  category: string;
   is_active: boolean;
 }
 
-const emptyForm: CategoryForm = {
-  name: "",
-  name_en: "",
-  slug: "",
-  description: "",
-  icon: "",
+const emptyForm: FaqForm = {
+  question: "",
+  answer: "",
+  category: "",
   is_active: true,
 };
 
-export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+export default function AdminFaqsPage() {
+  const [faqs, setFaqs] = useState<Faq[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<Category | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<Faq | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<CategoryForm>(emptyForm);
-  const [slugTouched, setSlugTouched] = useState(false);
+  const [formData, setFormData] = useState<FaqForm>(emptyForm);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const loadCategories = useCallback(async () => {
+  const loadFaqs = useCallback(async () => {
     setLoading(true);
-    const res = await categoryService.getAll({ pageSize: 100 });
+    const res = await faqService.getAll({ pageSize: 100 });
     if (res.success) {
-      setCategories(res.data);
+      setFaqs(res.data);
     } else {
-      toast.error("Gagal memuatkan kategori", res.error ?? undefined);
+      toast.error("Gagal memuatkan soalan lazim", res.error ?? undefined);
     }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    loadFaqs();
+  }, [loadFaqs]);
 
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cat.name_en.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFaqs = faqs.filter(
+    (f) =>
+      f.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.answer.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const openCreateModal = () => {
     setFormData(emptyForm);
     setEditingId(null);
-    setSlugTouched(false);
     setShowModal(true);
   };
 
-  const openEditModal = (category: Category) => {
+  const openEditModal = (faq: Faq) => {
     setFormData({
-      name: category.name,
-      name_en: category.name_en,
-      slug: category.slug,
-      description: category.description ?? "",
-      icon: category.icon ?? "",
-      is_active: category.is_active,
+      question: faq.question,
+      answer: faq.answer,
+      category: faq.category ?? "",
+      is_active: faq.is_active,
     });
-    setEditingId(category.id);
-    setSlugTouched(true);
+    setEditingId(faq.id);
     setShowModal(true);
-  };
-
-  const handleNameChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      name: value,
-      slug: slugTouched || editingId ? prev.slug : slugify(value),
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const trimmedName = formData.name.trim();
-    const trimmedNameEn = formData.name_en.trim();
-    const finalSlug = formData.slug.trim() || slugify(trimmedName);
+    const trimmedQ = formData.question.trim();
+    const trimmedA = formData.answer.trim();
 
-    if (!trimmedName || !trimmedNameEn || !finalSlug) {
-      toast.error("Maklumat tidak lengkap", "Sila isi nama dan slug.");
+    if (!trimmedQ || !trimmedA) {
+      toast.error("Maklumat tidak lengkap", "Sila isi soalan dan jawapan.");
       return;
     }
 
     setSubmitting(true);
 
-    const payload: CategoryInsert = {
-      name: trimmedName,
-      name_en: trimmedNameEn,
-      slug: finalSlug,
-      description: formData.description.trim() || null,
-      icon: formData.icon.trim() || null,
-      image_url: null,
-      color: null,
-      sort_order: editingId
-        ? (categories.find((c) => c.id === editingId)?.sort_order ?? 0)
-        : categories.length,
+    const existing = editingId ? faqs.find((f) => f.id === editingId) : null;
+
+    const payload: FaqInsert = {
+      question: trimmedQ,
+      answer: trimmedA,
+      category: formData.category.trim() || null,
+      sort_order: existing?.sort_order ?? faqs.length,
       is_active: formData.is_active,
     };
 
     const res = editingId
-      ? await categoryService.update(editingId, payload)
-      : await categoryService.create(payload);
+      ? await faqService.update(editingId, payload)
+      : await faqService.create(payload);
 
     setSubmitting(false);
 
     if (!res.success) {
       toast.error(
-        editingId ? "Gagal kemas kini kategori" : "Gagal tambah kategori",
+        editingId
+          ? "Gagal mengemaskini soalan lazim"
+          : "Gagal menambah soalan lazim",
         res.error ?? undefined
       );
       return;
@@ -150,41 +132,41 @@ export default function AdminCategoriesPage() {
 
     logActivity({
       action: editingId ? "update" : "create",
-      entity: "category",
+      entity: "faq",
       entityId: res.data?.id ?? editingId,
-      details: { name: trimmedName },
+      details: { question: trimmedQ },
     });
     void revalidatePublicSite();
 
     toast.success(
-      editingId ? "Kategori dikemas kini" : "Kategori ditambah",
-      trimmedName
+      editingId ? "Soalan lazim dikemas kini" : "Soalan lazim ditambah",
+      trimmedQ.length > 50 ? trimmedQ.slice(0, 50) + "..." : trimmedQ
     );
     setShowModal(false);
-    loadCategories();
+    loadFaqs();
   };
 
-  const handleDelete = async (category: Category) => {
-    setDeletingId(category.id);
-    const res = await categoryService.delete(category.id);
+  const handleDelete = async (faq: Faq) => {
+    setDeletingId(faq.id);
+    const res = await faqService.delete(faq.id);
     setDeletingId(null);
 
     if (!res.success) {
-      toast.error("Gagal padam kategori", res.error ?? undefined);
+      toast.error("Gagal memadamkan soalan lazim", res.error ?? undefined);
       return;
     }
 
     logActivity({
       action: "delete",
-      entity: "category",
-      entityId: category.id,
-      details: { name: category.name },
+      entity: "faq",
+      entityId: faq.id,
+      details: { question: faq.question },
     });
     void revalidatePublicSite();
 
-    toast.success("Kategori dipadam", category.name);
+    toast.success("Soalan lazim dipadam");
     setShowDeleteConfirm(null);
-    setCategories((prev) => prev.filter((c) => c.id !== category.id));
+    setFaqs((prev) => prev.filter((f) => f.id !== faq.id));
   };
 
   return (
@@ -198,10 +180,10 @@ export default function AdminCategoriesPage() {
       >
         <div>
           <h1 className="font-display text-display-sm font-bold text-foreground">
-            Kategori
+            Soalan Lazim
           </h1>
           <p className="mt-1 text-body-sm text-muted-foreground">
-            Urus kategori produk anda
+            Urus soalan dan jawapan yang sering ditanya pelanggan
           </p>
         </div>
         <motion.button
@@ -211,7 +193,7 @@ export default function AdminCategoriesPage() {
           className="btn-rose"
         >
           <Plus className="mr-2 h-4 w-4" />
-          Tambah Kategori
+          Tambah Soalan
         </motion.button>
       </motion.div>
 
@@ -227,7 +209,7 @@ export default function AdminCategoriesPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Cari kategori..."
+            placeholder="Cari soalan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full rounded-xl border border-sand/50 bg-cream/30 py-2.5 pl-10 pr-4 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
@@ -235,104 +217,99 @@ export default function AdminCategoriesPage() {
         </div>
       </motion.div>
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center rounded-2xl border border-sand/20 bg-white py-16">
           <Loader2 className="h-6 w-6 animate-spin text-camel" />
         </div>
       )}
 
-      {/* Empty State */}
-      {!loading && filteredCategories.length === 0 && (
+      {/* Empty */}
+      {!loading && filteredFaqs.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-sand/50 bg-white/50 py-16">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cream">
             <Inbox className="h-7 w-7 text-muted-foreground" />
           </div>
           <h3 className="mt-4 font-display text-heading-md font-semibold text-foreground">
-            {searchQuery ? "Tiada kategori dijumpai" : "Belum ada kategori"}
+            {searchQuery ? "Tiada soalan dijumpai" : "Belum ada soalan lazim"}
           </h3>
           <p className="mt-1 text-body-sm text-muted-foreground">
             {searchQuery
               ? "Cuba ubah carian anda"
-              : "Tambah kategori pertama untuk bermula"}
+              : "Tambah soalan pertama untuk bermula"}
           </p>
         </div>
       )}
 
-      {/* Categories List */}
-      {!loading && filteredCategories.length > 0 && (
+      {/* List */}
+      {!loading && filteredFaqs.length > 0 && (
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
           className="flex flex-col gap-3"
         >
-          {filteredCategories.map((category) => (
+          {filteredFaqs.map((faq) => (
             <motion.div
-              key={category.id}
+              key={faq.id}
               variants={staggerItem}
-              className="group flex items-center gap-4 rounded-2xl border border-sand/20 bg-white p-4 shadow-soft-sm transition-all hover:shadow-soft-md sm:p-5"
+              className="group rounded-2xl border border-sand/20 bg-white shadow-soft-sm transition-all hover:shadow-soft-md"
             >
-              {/* Drag Handle */}
-              <div className="cursor-grab text-muted-foreground/40 hover:text-muted-foreground">
-                <GripVertical className="h-5 w-5" />
-              </div>
+              <div className="flex items-start gap-4 p-4 sm:p-5">
+                <div className="cursor-grab pt-1 text-muted-foreground/40 hover:text-muted-foreground">
+                  <GripVertical className="h-5 w-5" />
+                </div>
 
-              {/* Icon */}
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-cream text-2xl">
-                {category.icon || "📦"}
-              </div>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-cream">
+                  <HelpCircle className="h-5 w-5 text-camel" />
+                </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-display text-heading-sm font-semibold text-foreground">
-                    {category.name}
+                <div
+                  className="flex-1 min-w-0 cursor-pointer"
+                  onClick={() =>
+                    setExpandedId(expandedId === faq.id ? null : faq.id)
+                  }
+                >
+                  <h3 className="font-display text-body-md font-semibold text-foreground">
+                    {faq.question}
                   </h3>
-                  <span className="text-body-xs text-muted-foreground">
-                    ({category.name_en})
-                  </span>
+                  <p
+                    className={`mt-1 text-body-sm text-muted-foreground ${
+                      expandedId === faq.id
+                        ? "whitespace-pre-line"
+                        : "line-clamp-1"
+                    }`}
+                  >
+                    {faq.answer}
+                  </p>
                 </div>
-                <p className="mt-0.5 truncate text-body-xs text-muted-foreground">
-                  {category.description || category.slug}
-                </p>
-              </div>
 
-              {/* Product Count */}
-              <div className="hidden text-center sm:block">
-                <div className="text-heading-sm font-bold text-foreground">
-                  {category.product_count ?? 0}
+                <span
+                  className={`hidden flex-shrink-0 rounded-full px-2.5 py-0.5 text-body-xs font-medium sm:inline-flex ${
+                    faq.is_active
+                      ? "bg-green-50 text-green-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {faq.is_active ? "Aktif" : "Tidak aktif"}
+                </span>
+
+                <div className="flex flex-shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    onClick={() => openEditModal(faq)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-cream hover:text-foreground"
+                    aria-label="Edit"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(faq)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-600"
+                    aria-label="Padam"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="text-body-xs text-muted-foreground">Produk</div>
-              </div>
-
-              {/* Status */}
-              <span
-                className={`hidden rounded-full px-2.5 py-0.5 text-body-xs font-medium sm:inline-flex ${
-                  category.is_active
-                    ? "bg-green-50 text-green-700"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {category.is_active ? "Aktif" : "Tidak aktif"}
-              </span>
-
-              {/* Actions */}
-              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button
-                  onClick={() => openEditModal(category)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-cream hover:text-foreground"
-                  aria-label="Edit"
-                >
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(category)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-600"
-                  aria-label="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
               </div>
             </motion.div>
           ))}
@@ -361,7 +338,9 @@ export default function AdminCategoriesPage() {
               >
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="font-display text-heading-lg font-semibold text-foreground">
-                    {editingId ? "Sunting Kategori" : "Tambah Kategori Baru"}
+                    {editingId
+                      ? "Sunting Soalan Lazim"
+                      : "Tambah Soalan Lazim"}
                   </h2>
                   <button
                     onClick={() => !submitting && setShowModal(false)}
@@ -372,82 +351,50 @@ export default function AdminCategoriesPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-2 block text-body-sm font-medium text-foreground">
-                        Nama (BM) <span className="text-rose">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => handleNameChange(e.target.value)}
-                        placeholder="cth: Kek & Cake"
-                        required
-                        className="w-full rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-2 block text-body-sm font-medium text-foreground">
-                        Nama (EN) <span className="text-rose">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name_en}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name_en: e.target.value })
-                        }
-                        placeholder="cth: Cakes"
-                        required
-                        className="w-full rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-2 block text-body-sm font-medium text-foreground">
-                        Slug <span className="text-rose">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.slug}
-                        onChange={(e) => {
-                          setSlugTouched(true);
-                          setFormData({ ...formData, slug: e.target.value });
-                        }}
-                        placeholder="cth: kek-cake"
-                        required
-                        className="w-full rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm font-mono transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-2 block text-body-sm font-medium text-foreground">
-                        Ikon (Emoji)
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.icon}
-                        onChange={(e) =>
-                          setFormData({ ...formData, icon: e.target.value })
-                        }
-                        placeholder="🎂"
-                        className="w-full rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
-                      />
-                    </div>
+                  <div>
+                    <label className="mb-2 block text-body-sm font-medium text-foreground">
+                      Soalan <span className="text-rose">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.question}
+                      onChange={(e) =>
+                        setFormData({ ...formData, question: e.target.value })
+                      }
+                      placeholder="cth: Bagaimana cara membuat tempahan?"
+                      required
+                      className="w-full rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
+                    />
                   </div>
 
                   <div>
                     <label className="mb-2 block text-body-sm font-medium text-foreground">
-                      Penerangan
+                      Jawapan <span className="text-rose">*</span>
                     </label>
                     <textarea
-                      rows={3}
-                      value={formData.description}
+                      rows={5}
+                      value={formData.answer}
                       onChange={(e) =>
-                        setFormData({ ...formData, description: e.target.value })
+                        setFormData({ ...formData, answer: e.target.value })
                       }
-                      placeholder="Penerangan ringkas kategori..."
+                      placeholder="Tulis jawapan yang lengkap..."
+                      required
                       className="w-full resize-none rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-body-sm font-medium text-foreground">
+                      Kategori (Pilihan)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.category}
+                      onChange={(e) =>
+                        setFormData({ ...formData, category: e.target.value })
+                      }
+                      placeholder="cth: Tempahan, Penghantaran, Pembayaran"
+                      className="w-full rounded-xl border border-sand/50 bg-cream/30 px-4 py-3 text-body-sm transition-all focus:border-camel focus:bg-white focus:outline-none focus:ring-2 focus:ring-camel/20"
                     />
                   </div>
 
@@ -456,12 +403,15 @@ export default function AdminCategoriesPage() {
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={(e) =>
-                        setFormData({ ...formData, is_active: e.target.checked })
+                        setFormData({
+                          ...formData,
+                          is_active: e.target.checked,
+                        })
                       }
                       className="h-4 w-4 rounded border-sand text-rose focus:ring-rose"
                     />
                     <span className="text-body-sm font-medium text-foreground">
-                      Aktif
+                      Paparkan di laman web
                     </span>
                   </label>
 
@@ -524,11 +474,13 @@ export default function AdminCategoriesPage() {
                   <Trash2 className="h-5 w-5 text-red-600" />
                 </div>
                 <h3 className="font-display text-heading-md font-semibold text-foreground">
-                  Padam {showDeleteConfirm.name}?
+                  Padam soalan ini?
                 </h3>
-                <p className="mt-2 text-body-sm text-muted-foreground">
-                  Tindakan ini tidak boleh dibatalkan. Produk dalam kategori ini
-                  akan kehilangan kategorinya.
+                <p className="mt-2 text-body-sm text-muted-foreground line-clamp-3">
+                  &ldquo;{showDeleteConfirm.question}&rdquo;
+                </p>
+                <p className="mt-2 text-body-xs text-muted-foreground">
+                  Tindakan ini tidak boleh dibatalkan.
                 </p>
                 <div className="mt-6 flex gap-3">
                   <button

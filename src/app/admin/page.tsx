@@ -7,6 +7,7 @@ import {
   Grid3X3,
   Image as ImageIcon,
   MessageSquare,
+  HelpCircle,
   Upload,
   ArrowUpRight,
   Activity,
@@ -29,7 +30,7 @@ interface DashboardStats {
 const statConfig = [
   {
     key: "products" as const,
-    title: "Total Produk",
+    title: "Jumlah Produk",
     icon: Package,
     color: "bg-blue-50 text-blue-600",
     href: "/admin/products",
@@ -60,7 +61,7 @@ const statConfig = [
 const quickActions = [
   { label: "Tambah Produk", href: "/admin/products", icon: Package },
   { label: "Muat Naik Gambar", href: "/admin/gallery", icon: Upload },
-  { label: "Urus Testimoni", href: "/admin/testimonials", icon: MessageSquare },
+  { label: "Urus Soalan Lazim", href: "/admin/faqs", icon: HelpCircle },
   { label: "Tetapan Laman", href: "/admin/settings", icon: Activity },
 ];
 
@@ -118,7 +119,7 @@ export default function AdminDashboardPage() {
     ].filter(Boolean);
 
     if (errs.length > 0) {
-      toast.error("Gagal memuat statistik", errs[0]?.message);
+      toast.error("Gagal memuatkan statistik", errs[0]?.message);
     }
 
     setStats({
@@ -144,10 +145,10 @@ export default function AdminDashboardPage() {
       {/* Page Header */}
       <motion.div variants={fadeInUp} initial="hidden" animate="visible">
         <h1 className="font-display text-display-sm font-bold text-foreground">
-          Dashboard
+          Papan Pemuka
         </h1>
         <p className="mt-1 text-body-md text-muted-foreground">
-          Selamat datang kembali! Berikut adalah ringkasan laman web anda.
+          Selamat datang kembali. Berikut adalah ringkasan laman web anda.
         </p>
       </motion.div>
 
@@ -226,7 +227,7 @@ export default function AdminDashboardPage() {
                   Belum ada aktiviti
                 </p>
                 <p className="mt-1 text-body-xs text-muted-foreground">
-                  Aktiviti pentadbiran akan muncul di sini
+                  Aktiviti pentadbiran akan dipaparkan di sini
                 </p>
               </div>
             ) : (

@@ -9,6 +9,7 @@ import type {
   GalleryItem,
   Testimonial,
   Setting,
+  Faq,
 } from "@/types";
 import { defaultSettings, type SiteSettings } from "@/lib/site-settings";
 
@@ -17,6 +18,7 @@ export interface SiteData {
   products: Product[];
   gallery: GalleryItem[];
   testimonials: Testimonial[];
+  faqs: Faq[];
   settings: SiteSettings;
 }
 
@@ -57,6 +59,7 @@ export async function loadSiteData(): Promise<SiteData> {
       productsRes,
       galleryRes,
       testimonialsRes,
+      faqsRes,
       settingsRes,
     ] = await Promise.all([
       supabase
@@ -80,6 +83,11 @@ export async function loadSiteData(): Promise<SiteData> {
         .eq("is_approved", true)
         .order("sort_order", { ascending: true })
         .limit(12),
+      supabase
+        .from("faqs")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
       supabase.from("settings").select("*"),
     ]);
 
@@ -88,6 +96,7 @@ export async function loadSiteData(): Promise<SiteData> {
       products: (productsRes.data as Product[] | null) ?? [],
       gallery: (galleryRes.data as GalleryItem[] | null) ?? [],
       testimonials: (testimonialsRes.data as Testimonial[] | null) ?? [],
+      faqs: (faqsRes.data as Faq[] | null) ?? [],
       settings: settingsFromRows(settingsRes.data as Setting[] | null),
     };
   } catch {
@@ -98,6 +107,7 @@ export async function loadSiteData(): Promise<SiteData> {
       products: [],
       gallery: [],
       testimonials: [],
+      faqs: [],
       settings: defaultSettings,
     };
   }

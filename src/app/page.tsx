@@ -17,7 +17,7 @@ import { loadSiteData } from "@/lib/site-data";
 export const revalidate = 60;
 
 export default async function Home() {
-  const { categories, products, gallery, testimonials, settings } =
+  const { categories, products, gallery, testimonials, faqs, settings } =
     await loadSiteData();
 
   return (
@@ -34,7 +34,7 @@ export default async function Home() {
         />
         <GallerySection items={gallery} />
         <TestimonialsSection testimonials={testimonials} />
-        <FAQSection />
+        <FAQSection faqs={faqs} settings={settings} />
         <ContactSection settings={settings} />
       </main>
       <Footer settings={settings} />
