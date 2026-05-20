@@ -2,11 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ShoppingBag, Star, Flame } from "lucide-react";
-import {
-  featuredProducts as fallbackProducts,
-  productCategories as fallbackCategories,
-  siteConfig,
-} from "@/lib/constants";
+import { siteConfig } from "@/lib/constants";
 import type { Product, Category } from "@/types";
 import { whatsappLink, type SiteSettings } from "@/lib/site-settings";
 import {
@@ -48,8 +44,8 @@ function ProductCard({
     ? `${whatsappUrl}&text=${encodeURIComponent(`Saya berminat dengan ${product.name}`)}`
     : `${whatsappUrl}?text=${encodeURIComponent(`Saya berminat dengan ${product.name}`)}`;
   const orderUrl = whatsappUrl.includes("?")
-    ? `${whatsappUrl}&text=${encodeURIComponent(`Saya ingin order ${product.name} (${formatCurrency(product.price)})`)}`
-    : `${whatsappUrl}?text=${encodeURIComponent(`Saya ingin order ${product.name} (${formatCurrency(product.price)})`)}`;
+    ? `${whatsappUrl}&text=${encodeURIComponent(`Saya ingin membuat tempahan ${product.name} (${formatCurrency(product.price)})`)}`
+    : `${whatsappUrl}?text=${encodeURIComponent(`Saya ingin membuat tempahan ${product.name} (${formatCurrency(product.price)})`)}`;
 
   return (
     <motion.div
@@ -79,13 +75,13 @@ function ProductCard({
             {product.isBestSeller && (
               <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-3 py-1 text-body-xs font-semibold text-white backdrop-blur-sm">
                 <Flame className="h-3 w-3" />
-                Best Seller
+                Paling Laris
               </span>
             )}
             {product.isNew && (
               <span className="inline-flex items-center gap-1 rounded-full bg-rose/90 px-3 py-1 text-body-xs font-semibold text-white backdrop-blur-sm">
                 <Star className="h-3 w-3" />
-                New
+                Baru
               </span>
             )}
           </div>
@@ -101,6 +97,7 @@ function ProductCard({
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-soft-md backdrop-blur-sm transition-transform hover:scale-110"
+              aria-label="Tanya lebih lanjut"
             >
               <ShoppingBag className="h-4 w-4 text-foreground" />
             </a>
@@ -132,7 +129,7 @@ function ProductCard({
               whileTap={{ scale: 0.95 }}
               className="rounded-full bg-cream px-4 py-2 text-body-xs font-semibold text-foreground transition-colors hover:bg-sand"
             >
-              Order
+              Tempah
             </motion.a>
           </div>
         </div>
@@ -150,75 +147,46 @@ export function ProductsSection({
   categories?: Category[];
   settings?: SiteSettings;
 }) {
+  // Hide section entirely when DB has no products
+  if (!products || products.length === 0) return null;
+
   const whatsappUrl = settings?.contactWhatsapp
     ? whatsappLink(settings.contactWhatsapp)
     : siteConfig.links.whatsapp;
-  // ─── Display Products ───────────────────────────────────────────────────
-  const displayProducts: DisplayProduct[] =
-    products && products.length > 0
-      ? products
-          .filter((p) => p.is_featured || p.is_best_seller || p.is_new)
-          .slice(0, 6)
-          .map((p) => {
-            const cat = categories?.find((c) => c.id === p.category_id);
-            return {
-              id: p.id,
-              name: p.name,
-              description: p.description,
-              price: p.price,
-              image: p.image_url,
-              categoryName: cat?.name ?? null,
-              isBestSeller: p.is_best_seller,
-              isNew: p.is_new,
-            };
-          })
-      : fallbackProducts.map((p) => ({
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          price: p.price,
-          image: p.image,
-          categoryName:
-            fallbackCategories.find((c) => c.id === p.category)?.name ??
-            p.category,
-          isBestSeller: p.isBestSeller,
-          isNew: p.isNew,
-        }));
 
-  // If no featured products in DB but DB has products, fall back to first 6
-  const finalProducts =
-    products && products.length > 0 && displayProducts.length === 0
-      ? products.slice(0, 6).map((p) => {
-          const cat = categories?.find((c) => c.id === p.category_id);
-          return {
-            id: p.id,
-            name: p.name,
-            description: p.description,
-            price: p.price,
-            image: p.image_url,
-            categoryName: cat?.name ?? null,
-            isBestSeller: p.is_best_seller,
-            isNew: p.is_new,
-          };
-        })
-      : displayProducts;
+  // Prefer featured/best-seller/new products. Fall back to first 6 if none flagged.
+  const flagged = products.filter(
+    (p) => p.is_featured || p.is_best_seller || p.is_new
+  );
+  const finalProducts: DisplayProduct[] = (
+    flagged.length > 0 ? flagged.slice(0, 6) : products.slice(0, 6)
+  ).map((p) => {
+    const cat = categories?.find((c) => c.id === p.category_id);
+    return {
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      image: p.image_url,
+      categoryName: cat?.name ?? null,
+      isBestSeller: p.is_best_seller,
+      isNew: p.is_new,
+    };
+  });
 
-  // ─── Category Pills ─────────────────────────────────────────────────────
+  // Category pills (only show if we have categories)
   const pills: DisplayCategoryPill[] =
-    categories && categories.length > 0
-      ? categories.slice(0, 5).map((c) => ({
-          id: c.id,
-          name: c.name,
-          icon: c.icon ?? "📦",
-        }))
-      : fallbackCategories.slice(0, 5).map((c) => ({
-          id: c.id,
-          name: c.name,
-          icon: c.icon,
-        }));
+    categories?.slice(0, 5).map((c) => ({
+      id: c.id,
+      name: c.name,
+      icon: c.icon ?? "📦",
+    })) ?? [];
 
   return (
-    <section id="products" className="section-padding-lg relative overflow-hidden bg-cream">
+    <section
+      id="products"
+      className="section-padding-lg relative overflow-hidden bg-cream"
+    >
       {/* Decorative Background */}
       <div className="absolute inset-0">
         <div className="absolute left-1/2 top-0 h-px w-3/4 -translate-x-1/2 bg-gradient-to-r from-transparent via-sand to-transparent" />
@@ -235,7 +203,10 @@ export function ProductsSection({
           viewport={{ once: true, margin: "-100px" }}
           className="mb-16 text-center"
         >
-          <motion.div variants={staggerItem} className="mb-4 flex items-center justify-center gap-3">
+          <motion.div
+            variants={staggerItem}
+            className="mb-4 flex items-center justify-center gap-3"
+          >
             <motion.span variants={lineReveal} className="h-px w-12 bg-camel" />
             <span className="text-body-sm font-semibold uppercase tracking-[0.2em] text-camel">
               Menu Pilihan
@@ -254,38 +225,41 @@ export function ProductsSection({
             variants={staggerItem}
             className="mx-auto mt-4 max-w-2xl text-body-lg text-muted-foreground"
           >
-            Setiap hidangan dihasilkan dengan bahan premium dan sentuhan kasih sayang,
-            menjadikan setiap gigitan satu pengalaman yang tidak dapat dilupakan.
+            Setiap hidangan dihasilkan dengan bahan premium dan sentuhan kasih
+            sayang, menjadikan setiap gigitan satu pengalaman yang tidak dapat
+            dilupakan.
           </motion.p>
         </motion.div>
 
         {/* Category Pills */}
-        <motion.div
-          variants={staggerContainerFast}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mb-12 flex flex-wrap items-center justify-center gap-3"
-        >
-          <motion.button
-            variants={staggerItem}
-            className="rounded-full bg-foreground px-5 py-2.5 text-body-sm font-medium text-white shadow-soft-sm"
+        {pills.length > 0 && (
+          <motion.div
+            variants={staggerContainerFast}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="mb-12 flex flex-wrap items-center justify-center gap-3"
           >
-            Semua
-          </motion.button>
-          {pills.map((category) => (
             <motion.button
-              key={category.id}
               variants={staggerItem}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="rounded-full border border-sand/50 bg-white/80 px-5 py-2.5 text-body-sm font-medium text-foreground shadow-soft-sm backdrop-blur-sm transition-all hover:border-camel hover:bg-white"
+              className="rounded-full bg-foreground px-5 py-2.5 text-body-sm font-medium text-white shadow-soft-sm"
             >
-              <span className="mr-1.5">{category.icon}</span>
-              {category.name}
+              Semua
             </motion.button>
-          ))}
-        </motion.div>
+            {pills.map((category) => (
+              <motion.button
+                key={category.id}
+                variants={staggerItem}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="rounded-full border border-sand/50 bg-white/80 px-5 py-2.5 text-body-sm font-medium text-foreground shadow-soft-sm backdrop-blur-sm transition-all hover:border-camel hover:bg-white"
+              >
+                <span className="mr-1.5">{category.icon}</span>
+                {category.name}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
 
         {/* Products Grid */}
         <motion.div
@@ -296,7 +270,11 @@ export function ProductsSection({
           className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {finalProducts.map((product) => (
-            <ProductCard key={product.id} product={product} whatsappUrl={whatsappUrl} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              whatsappUrl={whatsappUrl}
+            />
           ))}
         </motion.div>
 

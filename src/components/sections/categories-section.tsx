@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { productCategories as fallbackCategories } from "@/lib/constants";
 import type { Category } from "@/types";
 import {
   staggerContainer,
@@ -43,10 +42,10 @@ export function CategoriesSection({
 }: {
   categories?: Category[];
 }) {
-  const display: readonly DisplayCategory[] =
-    categories && categories.length > 0
-      ? categories.map(toDisplay)
-      : fallbackCategories;
+  // Hide entirely when DB has no categories
+  if (!categories || categories.length === 0) return null;
+
+  const display: DisplayCategory[] = categories.map(toDisplay);
 
   return (
     <section className="section-padding relative overflow-hidden bg-white">
@@ -64,7 +63,10 @@ export function CategoriesSection({
           viewport={{ once: true, margin: "-100px" }}
           className="mb-14 text-center"
         >
-          <motion.div variants={staggerItem} className="mb-4 flex items-center justify-center gap-3">
+          <motion.div
+            variants={staggerItem}
+            className="mb-4 flex items-center justify-center gap-3"
+          >
             <motion.span variants={lineReveal} className="h-px w-12 bg-camel" />
             <span className="text-body-sm font-semibold uppercase tracking-[0.2em] text-camel">
               Kategori
@@ -83,8 +85,8 @@ export function CategoriesSection({
             variants={staggerItem}
             className="mx-auto mt-4 max-w-xl text-body-lg text-muted-foreground"
           >
-            Dari kek mewah hingga kuih tradisional — temui kegemaran anda
-            dalam koleksi kami yang pelbagai.
+            Daripada kek mewah hinggalah kuih tradisional — temui kegemaran
+            anda dalam koleksi kami yang pelbagai.
           </motion.p>
         </motion.div>
 
