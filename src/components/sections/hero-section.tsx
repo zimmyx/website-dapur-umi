@@ -165,22 +165,7 @@ export function HeroSection() {
             variants={staggerItem}
             className="mt-8 flex items-center gap-6 text-body-sm text-muted-foreground"
           >
-            <div className="flex items-center gap-2">
-              <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-8 w-8 rounded-full border-2 border-white bg-sand"
-                    style={{
-                      backgroundImage: `url(${placeholderImages.testimonials[i]})`,
-                      backgroundSize: "cover",
-                    }}
-                  />
-                ))}
-              </div>
-              <span className="font-medium">3000+ pelanggan gembira</span>
-            </div>
-            <div className="hidden items-center gap-1 sm:flex">
+            <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
                 <span key={i} className="text-yellow-500">
                   ★
@@ -188,6 +173,8 @@ export function HeroSection() {
               ))}
               <span className="ml-1 font-medium">4.9/5</span>
             </div>
+            <div className="hidden h-4 w-px bg-sand sm:block" />
+            <span className="hidden font-medium sm:inline">3000+ pelanggan gembira</span>
           </motion.div>
         </motion.div>
       </motion.div>
