@@ -240,17 +240,41 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Better mobile tap responsiveness */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
+  /* Prevent horizontal scroll on mobile due to wide elements */
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Better mobile touch targets — minimum 44px */
+@media (pointer: coarse) {
+  button:not([class*="h-"]):not([class*="size-"]),
+  a[role="button"]:not([class*="h-"]):not([class*="size-"]) {
+    min-height: 44px;
+  }
 }
 
 ::selection {

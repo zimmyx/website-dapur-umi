@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Playfair_Display } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -21,6 +21,13 @@ const playfair = Playfair_Display({
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#EFE9E3",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://dapurumi.com"),
   title: {
@@ -28,14 +35,15 @@ export const metadata: Metadata = {
     template: "%s | Dapur Umi",
   },
   description:
-    "Luxury homemade bakery crafting premium handcrafted desserts with love. Every bite tells a story of tradition, passion, and artistry.",
+    "Bakeri buatan tangan premium yang menyajikan kek, pastri, dan kuih artisan dengan bahan terpilih. Tempah melalui WhatsApp untuk majlis istimewa anda.",
   keywords: [
-    "bakery",
+    "bakeri",
     "kek",
-    "cake",
+    "kek tempahan",
     "pastri",
     "kuih",
-    "homemade",
+    "kuih tradisional",
+    "buatan tangan",
     "premium",
     "artisan",
     "Petaling Jaya",
@@ -52,13 +60,13 @@ export const metadata: Metadata = {
     siteName: "Dapur Umi",
     title: "Dapur Umi — Dari Dapur, Sampai Ke Hati",
     description:
-      "Luxury homemade bakery crafting premium handcrafted desserts with love.",
+      "Bakeri buatan tangan premium yang menyajikan kek, pastri, dan kuih artisan dengan bahan terpilih.",
     images: [
       {
         url: "/og.jpg",
         width: 1200,
         height: 630,
-        alt: "Dapur Umi - Premium Handcrafted Bakery",
+        alt: "Dapur Umi - Bakeri Buatan Tangan Premium",
       },
     ],
   },
@@ -66,7 +74,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Dapur Umi — Dari Dapur, Sampai Ke Hati",
     description:
-      "Luxury homemade bakery crafting premium handcrafted desserts with love.",
+      "Bakeri buatan tangan premium yang menyajikan kek, pastri, dan kuih artisan.",
     images: ["/og.jpg"],
   },
   robots: {

@@ -56,10 +56,10 @@ function ProductCard({
     >
       <motion.div
         variants={cardHover}
-        className="overflow-hidden rounded-3xl border border-sand/20 bg-white shadow-soft-sm transition-all"
+        className="overflow-hidden rounded-2xl border border-sand/20 bg-white shadow-soft-sm transition-all sm:rounded-3xl"
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-cream/40">
+        <div className="relative aspect-square overflow-hidden bg-cream/40 sm:aspect-[4/5]">
           <motion.div variants={imageHover} className="h-full w-full">
             <div
               className="h-full w-full bg-cover bg-center"
@@ -71,54 +71,50 @@ function ProductCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Badges */}
-          <div className="absolute left-3 top-3 flex flex-col gap-2">
+          <div className="absolute left-2 top-2 flex flex-col gap-1.5 sm:left-3 sm:top-3 sm:gap-2">
             {product.isBestSeller && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-3 py-1 text-body-xs font-semibold text-white backdrop-blur-sm">
+              <span className="inline-flex items-center gap-1 rounded-full bg-foreground/90 px-2.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm sm:px-3 sm:py-1 sm:text-body-xs">
                 <Flame className="h-3 w-3" />
                 Paling Laris
               </span>
             )}
             {product.isNew && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-rose/90 px-3 py-1 text-body-xs font-semibold text-white backdrop-blur-sm">
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose/90 px-2.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm sm:px-3 sm:py-1 sm:text-body-xs">
                 <Star className="h-3 w-3" />
                 Baru
               </span>
             )}
           </div>
 
-          {/* Quick Action */}
-          <motion.div
-            className="absolute bottom-3 right-3"
-            initial={{ opacity: 0, y: 10 }}
-            whileHover={{ opacity: 1, y: 0 }}
-          >
+          {/* Quick Action - hidden on mobile (use main button instead) */}
+          <div className="absolute bottom-3 right-3 hidden opacity-0 transition-opacity group-hover:opacity-100 sm:block">
             <a
               href={interestUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-soft-md backdrop-blur-sm transition-transform hover:scale-110"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow-soft-md backdrop-blur-sm transition-transform hover:scale-110"
               aria-label="Tanya lebih lanjut"
             >
               <ShoppingBag className="h-4 w-4 text-foreground" />
             </a>
-          </motion.div>
+          </div>
         </div>
 
         {/* Content */}
-        <div className="p-5">
+        <div className="p-4 sm:p-5">
           {product.categoryName && (
-            <div className="mb-1 text-body-xs font-medium uppercase tracking-wider text-camel">
+            <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-camel sm:text-body-xs">
               {product.categoryName}
             </div>
           )}
-          <h3 className="font-display text-heading-sm font-semibold text-foreground">
+          <h3 className="font-display text-body-md font-semibold text-foreground sm:text-heading-sm">
             {product.name}
           </h3>
-          <p className="mt-1.5 line-clamp-2 text-body-sm text-muted-foreground">
+          <p className="mt-1.5 line-clamp-2 text-body-xs text-muted-foreground sm:text-body-sm">
             {product.description}
           </p>
-          <div className="mt-4 flex items-center justify-between">
-            <span className="font-display text-heading-md font-bold text-foreground">
+          <div className="mt-3 flex items-center justify-between gap-2 sm:mt-4">
+            <span className="font-display text-heading-sm font-bold text-foreground sm:text-heading-md">
               {formatCurrency(product.price)}
             </span>
             <motion.a
@@ -127,8 +123,9 @@ function ProductCard({
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="rounded-full bg-cream px-4 py-2 text-body-xs font-semibold text-foreground transition-colors hover:bg-sand"
+              className="inline-flex items-center gap-1 rounded-full bg-foreground px-4 py-2 text-body-xs font-semibold text-white shadow-sm transition-colors hover:bg-foreground/90 sm:px-5"
             >
+              <ShoppingBag className="h-3 w-3" />
               Tempah
             </motion.a>
           </div>

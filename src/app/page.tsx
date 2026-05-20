@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import { FloatingWhatsApp } from "@/components/floating-whatsapp";
 import {
   HeroSection,
   AboutSection,
@@ -22,9 +23,9 @@ export default async function Home() {
 
   return (
     <>
-      <Navbar />
+      <Navbar settings={settings} />
       <main>
-        <HeroSection />
+        <HeroSection settings={settings} />
         <AboutSection />
         <CategoriesSection categories={categories} />
         <ProductsSection
@@ -38,6 +39,7 @@ export default async function Home() {
         <ContactSection settings={settings} />
       </main>
       <Footer settings={settings} />
+      <FloatingWhatsApp settings={settings} />
     </>
   );
 }
